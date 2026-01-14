@@ -1,0 +1,162 @@
+# Swift Programming Language
+
+Swift — мощный и интуитивный язык программирования от Apple для создания приложений под iOS, macOS, watchOS и tvOS.
+
+## 1. Основы синтаксиса
+
+### 1.1 Переменные и константы
+
+Переменные объявляются с помощью `var`, константы — с помощью `let`:
+
+```swift
+var name = "John"      // переменная, можно изменить
+let pi = 3.14159       // константа, изменить нельзя
+```
+
+### 1.2 Базовые типы данных
+
+- **Int** — целые числа: `42`, `-17`
+- **Double, Float** — числа с плавающей точкой
+- **String** — строки: `"Hello, World!"`
+- **Bool** — логические значения: `true`, `false`
+- **Array** — массивы: `[1, 2, 3]`
+- **Dictionary** — словари: `["name": "John", "age": 30]`
+
+## 2. Опционалы (Optionals)
+
+Опционалы позволяют обрабатывать отсутствие значения. Объявляются с помощью `?`:
+
+```swift
+var middleName: String? = nil
+```
+
+### 2.1 Безопасное извлечение
+
+```swift
+if let name = middleName {
+    print("Имя: \(name)")
+}
+
+guard let name = middleName else {
+    return
+}
+```
+
+## 3. Функции
+
+Функции объявляются с ключевым словом `func`:
+
+```swift
+func greet(name: String) -> String {
+    return "Привет, \(name)!"
+}
+
+let message = greet(name: "Мир")
+```
+
+### 3.1 Параметры по умолчанию
+
+```swift
+func greet(name: String = "Гость") -> String {
+    return "Привет, \(name)!"
+}
+```
+
+## 4. Структуры и классы
+
+### 4.1 Структуры (Struct)
+
+Структуры — value types, копируются при передаче:
+
+```swift
+struct Point {
+    var x: Double
+    var y: Double
+}
+```
+
+### 4.2 Классы (Class)
+
+Классы — reference types, передаются по ссылке:
+
+```swift
+class Person {
+    var name: String
+
+    init(name: String) {
+        self.name = name
+    }
+}
+```
+
+## 5. Протоколы (Protocols)
+
+Протоколы определяют контракт методов и свойств:
+
+```swift
+protocol Drawable {
+    func draw()
+}
+
+struct Circle: Drawable {
+    func draw() {
+        print("Рисуем круг")
+    }
+}
+```
+
+## 6. SwiftUI
+
+SwiftUI — декларативный фреймворк для создания UI:
+
+```swift
+struct ContentView: View {
+    var body: some View {
+        VStack {
+            Text("Привет, SwiftUI!")
+            Button("Нажми меня") {
+                print("Нажато!")
+            }
+        }
+    }
+}
+```
+
+## 7. Обработка ошибок
+
+Swift использует `do-try-catch` для обработки ошибок:
+
+```swift
+enum NetworkError: Error {
+    case noConnection
+    case timeout
+}
+
+func fetchData() throws -> Data {
+    throw NetworkError.noConnection
+}
+
+do {
+    let data = try fetchData()
+} catch NetworkError.noConnection {
+    print("Нет соединения")
+} catch {
+    print("Неизвестная ошибка: \(error)")
+}
+```
+
+## 8. Управление памятью
+
+Swift использует ARC (Automatic Reference Counting). Для избежания retain cycles используйте `weak` и `unowned`:
+
+```swift
+class ViewController {
+    var closure: (() -> Void)?
+
+    func setup() {
+        closure = { [weak self] in
+            self?.doSomething()
+        }
+    }
+}
+```

@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: gpt
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      chat:
+        options:
+          model: gpt-4o
+          temperature: 0.7
+    vectorstore:
+      chroma:
+        client:
+          base-url: http://localhost:8000
+        tenant-name: default_tenant
+        database-name: default_database
+        collection-name: documents
+        initialize-schema: true
+
+server:
+  port: 8080
