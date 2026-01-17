@@ -9,6 +9,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClient;
 
+/**
+ * Конфигурация для интеграции с ChromaDB — векторной базой данных.
+ *
+ * <p>ChromaDB используется для хранения документов с их векторными представлениями
+ * (embeddings) и выполнения семантического поиска по ним.</p>
+ */
 @Slf4j
 @Configuration
 public class ChromaConfig {
@@ -25,6 +31,11 @@ public class ChromaConfig {
     @Value("${spring.ai.vectorstore.chroma.collection-name}")
     private String collectionName;
 
+    /**
+     * Клиент для взаимодействия с ChromaDB API.
+     *
+     * @return экземпляр {@link ChromaApi}
+     */
     @Bean
     public ChromaApi chromaApi() {
         return ChromaApi.builder()
@@ -33,6 +44,13 @@ public class ChromaConfig {
                 .build();
     }
 
+    /**
+     * Векторное хранилище на базе ChromaDB.
+     *
+     * @param chromaApi      клиент ChromaDB API
+     * @param embeddingModel модель для генерации embeddings
+     * @return экземпляр {@link ChromaVectorStore}
+     */
     @Bean
     public ChromaVectorStore vectorStore(ChromaApi chromaApi, EmbeddingModel embeddingModel) {
         try {

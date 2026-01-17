@@ -7,8 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication(exclude = ChromaVectorStoreAutoConfiguration.class)
 public class GptApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(GptApplication.class, args);
-	}
-
+    public static void main(String[] args) {
+        SpringApplication.run(GptApplication.class, args);
+    }
 }
