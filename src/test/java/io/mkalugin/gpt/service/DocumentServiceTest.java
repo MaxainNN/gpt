@@ -1,5 +1,6 @@
 package io.mkalugin.gpt.service;
 
+import io.mkalugin.gpt.client.ChromaDbClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,10 +12,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.VectorStore;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
@@ -27,6 +30,9 @@ class DocumentServiceTest {
     @Mock
     private VectorStore vectorStore;
 
+    @Mock
+    private ChromaDbClient chromaDbClient;
+
     @Captor
     private ArgumentCaptor<List<Document>> documentsCaptor;
 
@@ -34,7 +40,7 @@ class DocumentServiceTest {
 
     @BeforeEach
     void setUp() {
-        documentService = new DocumentService(vectorStore, "http://localhost:8000");
+        documentService = new DocumentService(vectorStore, chromaDbClient);
     }
 
     @Test
@@ -49,11 +55,10 @@ class DocumentServiceTest {
     }
 
     @Test
-    @DisplayName("loadDocumentsFromResources() должен вернуть 0 если файлы не найдены")
-    void loadDocumentsFromResources_shouldReturnZeroWhenNoFilesFound() throws IOException {
-        int result = documentService.loadDocumentsFromResources("non-existent-folder/*.txt");
-
-        assertThat(result).isZero();
+    @DisplayName("loadDocumentsFromResources() должен выбросить исключение если папка не существует")
+    void loadDocumentsFromResources_shouldThrowExceptionWhenFolderNotFound() {
+        assertThatThrownBy(() -> documentService.loadDocumentsFromResources("non-existent-folder/*.txt"))
+                .isInstanceOf(FileNotFoundException.class);
         verifyNoInteractions(vectorStore);
     }
 }

@@ -1,6 +1,7 @@
 package io.mkalugin.gpt.exception;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,11 +14,13 @@ import java.util.List;
  * @param error      название ошибки
  * @param message    описание ошибки
  * @param path       путь запроса
- * @param details    детали ошибки (для валидации)
+ * @param details    детали ошибки
  */
+@Builder
 @Schema(description = "Ответ об ошибке")
 public record ErrorResponse(
-        @Schema(description = "Время возникновения ошибки", example = "2024-01-15T10:30:00")
+
+        @Schema(description = "Время возникновения ошибки", example = "2026-01-22T10:30:00")
         LocalDateTime timestamp,
 
         @Schema(description = "HTTP статус код", example = "400")
@@ -35,11 +38,9 @@ public record ErrorResponse(
         @Schema(description = "Детали ошибки валидации", nullable = true)
         List<String> details
 ) {
-    public ErrorResponse(int status, String error, String message, String path) {
-        this(LocalDateTime.now(), status, error, message, path, null);
-    }
-
-    public ErrorResponse(int status, String error, String message, String path, List<String> details) {
-        this(LocalDateTime.now(), status, error, message, path, details);
+    public ErrorResponse {
+        if (timestamp == null) {
+            timestamp = LocalDateTime.now();
+        }
     }
 }

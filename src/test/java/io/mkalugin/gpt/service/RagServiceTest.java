@@ -47,11 +47,14 @@ class RagServiceTest {
     @Captor
     private ArgumentCaptor<SearchRequest> searchRequestCaptor;
 
+    @Mock
+    private InputValidationService inputValidationService;
+
     private RagService ragService;
 
     @BeforeEach
     void setUp() {
-        ragService = new RagService(chatClientBuilder, vectorStore);
+        ragService = new RagService(chatClientBuilder, vectorStore, inputValidationService);
     }
 
     @Test

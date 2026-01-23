@@ -41,13 +41,16 @@ class ChatServiceTest {
     @Mock
     private ChatClient.AdvisorSpec advisorSpec;
 
+    @Mock
+    private InputValidationService inputValidationService;
+
     private ChatMemory chatMemory;
     private ChatService chatService;
 
     @BeforeEach
     void setUp() {
         chatMemory = MessageWindowChatMemory.builder().maxMessages(20).build();
-        chatService = new ChatService(chatClientBuilder, chatMemory);
+        chatService = new ChatService(chatClientBuilder, chatMemory, inputValidationService);
     }
 
     @Test
@@ -57,6 +60,7 @@ class ChatServiceTest {
         String expectedResponse = "Hello! How can I help you?";
 
         when(chatClientBuilder.defaultAdvisors(any(MessageChatMemoryAdvisor.class))).thenReturn(chatClientBuilder);
+        when(chatClientBuilder.defaultSystem(anyString())).thenReturn(chatClientBuilder);
         when(chatClientBuilder.build()).thenReturn(chatClient);
         when(chatClient.prompt()).thenReturn(requestSpec);
         when(requestSpec.user(anyString())).thenReturn(requestSpec);
@@ -79,6 +83,7 @@ class ChatServiceTest {
         String conversationId = "test-conversation-123";
 
         when(chatClientBuilder.defaultAdvisors(any(MessageChatMemoryAdvisor.class))).thenReturn(chatClientBuilder);
+        when(chatClientBuilder.defaultSystem(anyString())).thenReturn(chatClientBuilder);
         when(chatClientBuilder.build()).thenReturn(chatClient);
         when(chatClient.prompt()).thenReturn(requestSpec);
         when(requestSpec.user(anyString())).thenReturn(requestSpec);

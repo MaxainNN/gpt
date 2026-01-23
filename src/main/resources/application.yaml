@@ -8,6 +8,7 @@ spring:
         options:
           model: gpt-4o
           temperature: 0.7
+          max-tokens: ${MAX_TOKENS:2048}
     vectorstore:
       chroma:
         client:
@@ -16,6 +17,42 @@ spring:
         database-name: default_database
         collection-name: documents
         initialize-schema: true
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=500,expireAfterWrite=10m
 
 server:
   port: 8080
+
+# Actuator endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when_authorized
+  info:
+    env:
+      enabled: true
+
+# Application info
+info:
+  app:
+    name: GPT Programming Assistant
+    version: 0.0.1-SNAPSHOT
+    description: REST API with OpenAI and RAG support
+
+# API Security
+app:
+  security:
+    api-key: ${API_KEY:}
+    enabled: ${API_KEY_ENABLED:false}
+  rate-limit:
+    requests-per-minute: ${RATE_LIMIT_RPM:60}
+  moderation:
+    jailbreak-protection: ${JAILBREAK_PROTECTION:true}
+    max-input-length: ${MAX_INPUT_LENGTH:10000}

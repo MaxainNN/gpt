@@ -34,3 +34,6 @@ build/
 
 ### Environment ###
 .env
+
+### Conversation Context ###
+CONTEXT_CONV.md

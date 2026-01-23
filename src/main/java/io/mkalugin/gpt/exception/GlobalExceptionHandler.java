@@ -1,87 +1,105 @@
 package io.mkalugin.gpt.exception;
 
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.extern.slf4j.Slf4j;
+import io.mkalugin.gpt.enums.ErrorCode;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.io.IOException;
-import java.util.List;
 
 /**
- * Глобальный обработчик исключений для REST API.
+ * Глобальный обработчик исключений.
  */
-@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     /**
-     * Обработка ошибок валидации.
+     * Обработка исключения {@link MethodArgumentNotValidException}.
+     * Ошибка валидации входных данных.
+     *
+     * @param ex исключение
+     * @return ErrorResponse с данными об ошибке
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationException(
-            MethodArgumentNotValidException ex,
-            HttpServletRequest request) {
-
-        List<String> details = ex.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                .toList();
-
-        log.warn("Validation error on {}: {}", request.getRequestURI(), details);
-
-        ErrorResponse response = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                "Bad Request",
-                "Ошибка валидации",
-                request.getRequestURI(),
-                details
-        );
-
-        return ResponseEntity.badRequest().body(response);
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleValidationException(MethodArgumentNotValidException ex) {
+        return ErrorResponse.builder()
+                .message("Ошибка валидации")
+                .error(ErrorCode.VALIDATION_ERROR.getMessage())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .details(ex.getBindingResult().getFieldErrors().stream()
+                        .map(e -> e.getField() + ": " + e.getDefaultMessage())
+                        .toList())
+                .build();
     }
 
     /**
-     * Обработка ошибок ввода-вывода.
+     * Обработка исключения {@link JailbreakAttemptException}.
+     * Попытка jailbreak атаки.
+     *
+     * @param ex исключение
+     * @return ErrorResponse с данными об ошибке
+     */
+    @ExceptionHandler(JailbreakAttemptException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleJailbreakException(JailbreakAttemptException ex) {
+        return ErrorResponse.builder()
+                .message(ex.getMessage())
+                .error(ErrorCode.BAD_REQUEST.getMessage())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .build();
+    }
+
+    /**
+     * Обработка исключения {@link IllegalArgumentException}.
+     * Некорректные аргументы.
+     *
+     * @param ex исключение
+     * @return ErrorResponse с данными об ошибке
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleIllegalArgumentException(IllegalArgumentException ex) {
+        return ErrorResponse.builder()
+                .message(ex.getMessage())
+                .error(ErrorCode.BAD_REQUEST.getMessage())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .build();
+    }
+
+    /**
+     * Обработка исключения {@link IOException}.
+     * Ошибка при работе с файлами.
+     *
+     * @param ex исключение
+     * @return ErrorResponse с данными об ошибке
      */
     @ExceptionHandler(IOException.class)
-    public ResponseEntity<ErrorResponse> handleIOException(
-            IOException ex,
-            HttpServletRequest request) {
-
-        log.error("IO error on {}: {}", request.getRequestURI(), ex.getMessage());
-
-        ErrorResponse response = new ErrorResponse(
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "Internal Server Error",
-                "Ошибка при работе с файлами: " + ex.getMessage(),
-                request.getRequestURI()
-        );
-
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleIOException(IOException ex) {
+        return ErrorResponse.builder()
+                .message("Ошибка при работе с файлами: " + ex.getMessage())
+                .error(ErrorCode.INTERNAL_SERVER_ERROR.getMessage())
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .build();
     }
 
     /**
-     * Обработка всех остальных исключений.
+     * Обработка исключения {@link Exception}.
+     * Базовое исключение.
+     *
+     * @param ex исключение
+     * @return ErrorResponse с данными об ошибке
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(
-            Exception ex,
-            HttpServletRequest request) {
-
-        log.error("Unexpected error on {}: {}", request.getRequestURI(), ex.getMessage(), ex);
-
-        ErrorResponse response = new ErrorResponse(
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "Internal Server Error",
-                "Произошла непредвиденная ошибка",
-                request.getRequestURI()
-        );
-
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleGenericException(Exception ex) {
+        return ErrorResponse.builder()
+                .message(ex.getMessage())
+                .error(ErrorCode.INTERNAL_SERVER_ERROR.getMessage())
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .build();
     }
 }
